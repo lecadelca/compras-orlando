@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Compras Orlando</title>
+
+<style>
+body { font-family: Arial; padding: 15px; background:#f5f5f5; }
+h2 { text-align:center; }
+input, select {
+  width:100%; padding:10px; margin:5px 0; border-radius:8px; border:1px solid #ccc;
+}
+button {
+  width:100%; padding:12px; background:#000; color:#fff; border:none; border-radius:10px;
+}
+.card {
+  background:#fff; padding:10px; margin-top:10px; border-radius:10px;
+}
+.resumo {
+  background:#000; color:#fff; padding:10px; border-radius:10px; margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🛍️ Compras Orlando</h2>
+
+<select id="loja">
+<option>Outlet</option>
+<option>Ross</option>
+<option>Walmart</option>
+</select>
+
+<input id="item" placeholder="Item">
+<input id="tamanho" placeholder="Tamanho (ex: 4T)">
+<input id="qtd" type="number" placeholder="Quantidade">
+<input id="preco" type="number" placeholder="Preço ($)">
+<input id="cotacao" type="number" value="5.2">
+<input id="venda" type="number" placeholder="Preço venda (R$)">
+
+<button onclick="addItem()">Adicionar</button>
+
+<div class="resumo">
+<p id="totalPecas">📦 Peças: 0</p>
+<p id="totalGasto">💸 Gasto: R$ 0</p>
+<p id="lucroTotal">💰 Lucro: R$ 0</p>
+</div>
+
+<div id="lista"></div>
+
+<script>
+
+let compras = JSON.parse(localStorage.getItem("compras")) || [];
+
+function salvar() {
+  localStorage.setItem("compras", JSON.stringify(compras));
+}
+
+function addItem() {
+
+  let loja = document.getElementById("loja").value;
+  let item = document.getElementById("item").value;
+  let tamanho = document.getElementById("tamanho").value;
+  let qtd = Number(document.getElementById("qtd").value);
+  let preco = Number(document.getElementById("preco").value);
+  let cotacao = Number(document.getElementById("cotacao").value);
+  let venda = Number(document.getElementById("venda").value);
+
+  let totalDolar = qtd * preco;
+  let totalReal = totalDolar * cotacao;
+  let receita = qtd * venda;
+  let lucro = receita - totalReal;
+
+  compras.push({loja, item, tamanho, qtd, totalReal, lucro});
+
+  salvar();
+  render();
+}
+
+function render() {
+
+  let lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  let totalPecas = 0;
+  let totalGasto = 0;
+  let lucroTotal = 0;
+
+  compras.forEach(c => {
+
+    totalPecas += c.qtd;
+    totalGasto += c.totalReal;
+    lucroTotal += c.lucro;
+
+    lista.innerHTML += `
+      <div class="card">
+        <b>${c.item}</b> (${c.tamanho})<br>
+        Loja: ${c.loja}<br>
+        Qtde: ${c.qtd}<br>
+        Gasto: R$ ${c.totalReal.toFixed(2)}<br>
+        Lucro: R$ ${c.lucro.toFixed(2)}
+      </div>
+    `;
+  });
+
+  document.getElementById("totalPecas").innerText = "📦 Peças: " + totalPecas;
+  document.getElementById("totalGasto").innerText = "💸 Gasto: R$ " + totalGasto.toFixed(2);
+  document.getElementById("lucroTotal").innerText = "💰 Lucro: R$ " + lucroTotal.toFixed(2);
+}
+
+render();
+
+</script>
+
+</body>
+</html>
